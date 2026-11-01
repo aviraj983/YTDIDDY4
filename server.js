@@ -90,7 +90,7 @@ function sanitizeFilename(name) {
 
 // ── API: Get Video Info ──
 
-app.get('/api/info', async (req, res) => {
+const handleInfo = async (req, res) => {
   try {
     const videoUrl = req.query.url;
     if (!videoUrl || !isValidYouTubeUrl(videoUrl)) {
@@ -119,7 +119,7 @@ app.get('/api/info', async (req, res) => {
         const duration = formatDuration(info.duration || 0);
         const views = (info.view_count || 0).toLocaleString();
         const author = info.uploader || info.channel || 'Unknown Channel';
-        const thumbnail = info.thumbnail || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+        const thumbnail = info.thumbnail || `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
 
         // Extract available video formats
         const videoFormats = [];
@@ -149,10 +149,10 @@ app.get('/api/info', async (req, res) => {
         // Ensure common quality tiers if none parsed
         if (videoFormats.length === 0) {
           videoFormats.push(
-            { qualityLabel: '1080p', container: 'mp4', hasAudio: true, contentLength: 'Variable', formatId: 'best' },
-            { qualityLabel: '720p', container: 'mp4', hasAudio: true, contentLength: 'Variable', formatId: 'best[height<=720]' },
-            { qualityLabel: '480p', container: 'mp4', hasAudio: true, contentLength: 'Variable', formatId: 'best[height<=480]' },
-            { qualityLabel: '360p', container: 'mp4', hasAudio: true, contentLength: 'Variable', formatId: 'best[height<=360]' }
+            { qualityLabel: '1080p', container: 'mp4', hasAudio: true, contentLength: 'Full HD', formatId: 'best' },
+            { qualityLabel: '720p', container: 'mp4', hasAudio: true, contentLength: 'HD', formatId: 'best[height<=720]' },
+            { qualityLabel: '480p', container: 'mp4', hasAudio: true, contentLength: 'SD', formatId: 'best[height<=480]' },
+            { qualityLabel: '360p', container: 'mp4', hasAudio: true, contentLength: 'Mobile', formatId: 'best[height<=360]' }
           );
         }
 
@@ -174,19 +174,33 @@ app.get('/api/info', async (req, res) => {
           source: 'yt-dlp Engine (Ultra Fast)'
         });
       } catch (ytdlpErr) {
-        console.warn('yt-dlp info failed, falling back to oEmbed:', ytdlpErr.message);
+        console.warn('yt-dlp info failed, falling back to cloud engine:', ytdlpErr.message);
       }
     }
 
-    // 2. Fallback: YouTube oEmbed API
-    const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
-    const oembedRes = await fetch(oembedUrl);
+    // 2. Serverless / Cloud Fallback: YouTube oEmbed + High-Res Thumbnails
+    let videoTitle = 'YouTube Video';
+    let authorName = 'YouTube Creator';
+    let thumbnail = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 
-    if (!oembedRes.ok) {
-      throw new Error('Video not found or unavailable');
+    try {
+      const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+      const oembedRes = await fetch(oembedUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'application/json'
+        }
+      });
+
+      if (oembedRes.ok) {
+        const oembed = await oembedRes.json();
+        if (oembed.title) videoTitle = oembed.title;
+        if (oembed.author_name) authorName = oembed.author_name;
+        if (oembed.thumbnail_url) thumbnail = oembed.thumbnail_url;
+      }
+    } catch (oembedErr) {
+      console.warn('oEmbed fetch warning:', oembedErr.message);
     }
-
-    const oembed = await oembedRes.json();
 
     const videoFormats = [
       { qualityLabel: '1080p', container: 'mp4', hasAudio: true, contentLength: 'Full HD', formatId: '1080p' },
@@ -196,31 +210,34 @@ app.get('/api/info', async (req, res) => {
     ];
 
     const audioFormats = [
-      { audioBitrate: '320 kbps', container: 'mp3', contentLength: '320 kbps', formatId: '320' },
-      { audioBitrate: '192 kbps', container: 'mp3', contentLength: '192 kbps', formatId: '192' },
-      { audioBitrate: '128 kbps', container: 'mp3', contentLength: '128 kbps', formatId: '128' }
+      { audioBitrate: '320 kbps', container: 'mp3', contentLength: 'Studio Quality', formatId: '320' },
+      { audioBitrate: '192 kbps', container: 'mp3', contentLength: 'High Quality', formatId: '192' },
+      { audioBitrate: '128 kbps', container: 'mp3', contentLength: 'Standard Quality', formatId: '128' }
     ];
 
-    res.json({
+    return res.json({
       videoId,
-      title: oembed.title || 'YouTube Video',
-      duration: '0:00',
+      title: videoTitle,
+      duration: 'HD',
       views: 'Popular',
-      author: oembed.author_name || 'YouTube Creator',
-      thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+      author: authorName,
+      thumbnail,
       videoFormats,
       audioFormats,
-      source: 'YouTube API Fallback'
+      source: 'YouTube Cloud Engine'
     });
   } catch (error) {
     console.error('Error fetching video info:', error.message);
-    res.status(500).json({ error: 'Failed to fetch video info. The video may be private, age-restricted, or unavailable.' });
+    res.status(500).json({ error: 'Failed to fetch video info. Please verify the URL is correct.' });
   }
-});
+};
+
+app.get('/api/info', handleInfo);
+app.get('/info', handleInfo);
 
 // ── API: Download Handler ──
 
-app.get('/api/download', async (req, res) => {
+const handleDownload = async (req, res) => {
   const { url, quality, format: fmt, token } = req.query;
 
   if (!url || !isValidYouTubeUrl(url)) {
@@ -412,23 +429,35 @@ app.get('/api/download', async (req, res) => {
     }
   }
 
-  return res.status(500).json({
-    error: 'All download engines are currently busy or unavailable. Please try again in a few moments.'
+  // If on serverless/cloud without backend binaries:
+  if (token) {
+    res.setHeader('Set-Cookie', `downloadToken=${encodeURIComponent(token)}; Path=/; Max-Age=30`);
+  }
+
+  return res.status(503).json({
+    error: 'Direct downloads on Vercel Serverless require RAPIDAPI_KEY or COBALT_API_URL in Environment Variables, or hosting on a VPS (Hostinger / Render / Railway) where yt-dlp runs natively.'
   });
-});
+};
+
+app.get('/api/download', handleDownload);
+app.get('/download', handleDownload);
 
 // ── Health Check ──
 
-app.get('/api/health', (req, res) => {
+const handleHealth = (req, res) => {
   res.json({
     status: 'ok',
     ytdlpConfigured: fs.existsSync(YTDLP_PATH),
     ffmpegConfigured: !!(FFMPEG_PATH && fs.existsSync(FFMPEG_PATH)),
     cobaltConfigured: !!COBALT_API_URL,
     rapidApiConfigured: !!RAPIDAPI_KEY,
+    environment: process.env.VERCEL ? 'vercel-serverless' : 'persistent-server',
     timestamp: new Date().toISOString()
   });
-});
+};
+
+app.get('/api/health', handleHealth);
+app.get('/health', handleHealth);
 
 // ── Blog Routes ──
 

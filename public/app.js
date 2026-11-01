@@ -312,11 +312,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!hasCookie && btn.dataset.loading === "true") {
           clearInterval(pollInterval);
           btn.innerHTML = '<span class="material-symbols-outlined text-[18px] text-amber-400">warning</span> <span>Retry</span>';
+          if (errorMsg) {
+            errorMsg.textContent = 'Direct downloads on Vercel Serverless require a free RAPIDAPI_KEY or COBALT_API_URL in Vercel Environment Variables, or hosting on a VPS (Hostinger) where yt-dlp runs natively.';
+            errorMsg.classList.remove('hidden');
+          }
           setTimeout(() => {
             btn.innerHTML = originalHtml;
             btn.classList.remove('opacity-80', 'cursor-not-allowed');
             btn.dataset.loading = "false";
-          }, 2500);
+          }, 4000);
           try { document.body.removeChild(iframe); } catch(e) {}
         }
       }, 600);
