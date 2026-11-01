@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- Homepage / Main Tool -->
+  <url>
+    <loc>https://yt4down.com/</loc>
+    <lastmod>2026-08-30</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- YouTube Video Downloader -->
+  <url>
+    <loc>https://yt4down.com/youtube-video-downloader</loc>
+    <lastmod>2026-08-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+
+  <!-- YouTube to MP3 -->
+  <url>
+    <loc>https://yt4down.com/youtube-to-mp3</loc>
+    <lastmod>2026-08-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.90</priority>
+  </url>
+
+  <!-- YouTube to MP4 -->
+  <url>
+    <loc>https://yt4down.com/youtube-to-mp4</loc>
+    <lastmod>2026-08-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.90</priority>
+  </url>
+
+  <!-- YouTube Shorts Downloader -->
+  <url>
+    <loc>https://yt4down.com/youtube-shorts-downloader</loc>
+    <lastmod>2026-08-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- YouTube Audio Downloader -->
+  <url>
+    <loc>https://yt4down.com/youtube-audio-downloader</loc>
+    <lastmod>2026-08-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- YouTube Music Downloader -->
+  <url>
+    <loc>https://yt4down.com/youtube-music-downloader</loc>
+    <lastmod>2026-08-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- About Us -->
+  <url>
+    <loc>https://yt4down.com/about-us</loc>
+    <lastmod>2026-08-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.60</priority>
+  </url>
+
+  <!-- ═══ BLOG PAGES ═══ -->
+
+  <!-- Blog Listing -->
+  <url>
+    <loc>https://yt4down.com/blog</loc>
+    <lastmod>2026-08-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Blog Article: 4K Download Guide -->
+  <url>
+    <loc>https://yt4down.com/blog/how-to-download-youtube-videos-in-4k</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- Blog Article: YouTube to MP3 Guide -->
+  <url>
+    <loc>https://yt4down.com/blog/youtube-to-mp3-guide</loc>
+    <lastmod>2026-08-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- Blog Article: Top 10 YouTube Downloaders -->
+  <url>
+    <loc>https://yt4down.com/blog/top-10-youtube-downloaders-2026</loc>
+    <lastmod>2026-08-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- Blog Article: YouTube Shorts Download -->
+  <url>
+    <loc>https://yt4down.com/blog/download-youtube-shorts-without-watermark</loc>
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- Blog Article: Video Format Comparison -->
+  <url>
+    <loc>https://yt4down.com/blog/mp4-vs-webm-vs-mkv-video-format-guide</loc>
+    <lastmod>2026-08-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- Blog Article: Mobile Download Guide -->
+  <url>
+    <loc>https://yt4down.com/blog/download-youtube-videos-iphone-android</loc>
+    <lastmod>2026-08-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- Legal Pages -->
+  <url>
+    <loc>https://yt4down.com/privacy-policy</loc>
+    <lastmod>2026-08-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.30</priority>
+  </url>
+
+  <url>
+    <loc>https://yt4down.com/terms-of-service</loc>
+    <lastmod>2026-08-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.30</priority>
+  </url>
+
+</urlset>

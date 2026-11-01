@@ -1,0 +1,8 @@
+node_modules/
+bin/
+.env
+*.log
+.DS_Store
+Thumbs.db
+mingit/
+mingit.zip
