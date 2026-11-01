@@ -446,12 +446,14 @@ app.get(/^(?!\/api).*/, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`\n  🚀 YT4DOWN server running at http://localhost:${PORT}`);
-  console.log(`  ⚡ yt-dlp Engine: ${fs.existsSync(YTDLP_PATH) ? 'Active ✅' : 'not found ❌'}`);
-  console.log(`  🎬 FFmpeg Engine: ${FFMPEG_PATH && fs.existsSync(FFMPEG_PATH) ? 'Active ✅' : 'not found ❌'}`);
-  console.log(`  🌐 Cobalt API: ${COBALT_API_URL ? 'Configured ✅' : 'disabled (optional)'}`);
-  console.log(`  🔑 RapidAPI: ${RAPIDAPI_KEY ? 'Configured ✅' : 'disabled (optional)'}\n`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`\n  🚀 YT4DOWN server running at http://localhost:${PORT}`);
+    console.log(`  ⚡ yt-dlp Engine: ${fs.existsSync(YTDLP_PATH) ? 'Active ✅' : 'not found ❌'}`);
+    console.log(`  🎬 FFmpeg Engine: ${FFMPEG_PATH && fs.existsSync(FFMPEG_PATH) ? 'Active ✅' : 'not found ❌'}`);
+    console.log(`  🌐 Cobalt API: ${COBALT_API_URL ? 'Configured ✅' : 'disabled (optional)'}`);
+    console.log(`  🔑 RapidAPI: ${RAPIDAPI_KEY ? 'Configured ✅' : 'disabled (optional)'}\n`);
+  });
+}
 
 module.exports = app;
