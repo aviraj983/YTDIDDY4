@@ -279,81 +279,60 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ── Download Button Loading State (cookie-based detection) ──
-  document.addEventListener('click', (e) => {
+  // ── Download Button Handler ──
+  document.addEventListener('click', async (e) => {
     const btn = e.target.closest('.download-btn');
-    if (!btn) return;
-    if (btn.dataset.loading === "true") {
-      e.preventDefault();
-      return;
-    }
+    if (!btn || btn.dataset.loading === 'true') return;
 
-    e.preventDefault(); // We'll trigger download ourselves with a token
-
+    e.preventDefault();
     const originalHtml = btn.innerHTML;
-    btn.dataset.loading = "true";
-    btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;"></span> <span>Processing...</span>';
+    btn.dataset.loading = 'true';
+    btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;"></span> <span>Generating link...</span>';
     btn.classList.add('opacity-80', 'cursor-not-allowed');
 
-    // Generate unique token & append to download URL
-    const token = 'dl_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
-    const downloadUrl = btn.href + '&token=' + encodeURIComponent(token);
+    const downloadHref = btn.getAttribute('href');
 
-    // Create a hidden iframe to trigger the download
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = downloadUrl;
-    document.body.appendChild(iframe);
+    try {
+      // Request direct fast-streaming URL
+      const fetchUrl = downloadHref + (downloadHref.includes('?') ? '&' : '?') + 'json=true';
+      const res = await fetch(fetchUrl);
+      const data = await res.json();
 
-    // If the server returns an HTML/JSON error document, iframe onload fires
-    iframe.onload = () => {
-      setTimeout(() => {
-        const hasCookie = document.cookie.includes('downloadToken=' + token);
-        if (!hasCookie && btn.dataset.loading === "true") {
-          clearInterval(pollInterval);
-          btn.innerHTML = '<span class="material-symbols-outlined text-[18px] text-amber-400">warning</span> <span>Retry</span>';
-          if (errorMsg) {
-            errorMsg.textContent = 'Direct downloads on Vercel Serverless require a free RAPIDAPI_KEY or COBALT_API_URL in Vercel Environment Variables, or hosting on a VPS (Hostinger) where yt-dlp runs natively.';
-            errorMsg.classList.remove('hidden');
-          }
-          setTimeout(() => {
-            btn.innerHTML = originalHtml;
-            btn.classList.remove('opacity-80', 'cursor-not-allowed');
-            btn.dataset.loading = "false";
-          }, 4000);
-          try { document.body.removeChild(iframe); } catch(e) {}
+      if (res.ok && data.downloadUrl) {
+        btn.innerHTML = '<span class="material-symbols-outlined text-[18px] text-emerald-400">check_circle</span> <span class="text-emerald-400">Downloading!</span>';
+
+        const a = document.createElement('a');
+        a.href = data.downloadUrl;
+        if (data.filename) {
+          a.download = data.filename;
         }
-      }, 600);
-    };
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          try { document.body.removeChild(a); } catch (e) {}
+        }, 1000);
 
-    // Poll for the cookie that the server sets when streaming begins
-    let attempts = 0;
-    const maxAttempts = 50; // 25 seconds max
-    const pollInterval = setInterval(() => {
-      attempts++;
-      const hasCookie = document.cookie.includes('downloadToken=' + token);
-      if (hasCookie || attempts >= maxAttempts) {
-        clearInterval(pollInterval);
-        // Clear the cookie
-        document.cookie = 'downloadToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
-        // Show brief success or reset
-        if (hasCookie) {
-          btn.innerHTML = '<span class="material-symbols-outlined text-[18px] text-emerald-400">check_circle</span> <span class="text-emerald-400">Started!</span>';
-          setTimeout(() => {
-            btn.innerHTML = originalHtml;
-            btn.classList.remove('opacity-80', 'cursor-not-allowed');
-            btn.dataset.loading = "false";
-          }, 1500);
-        } else {
-          // Timeout — reset button
+        setTimeout(() => {
           btn.innerHTML = originalHtml;
           btn.classList.remove('opacity-80', 'cursor-not-allowed');
-          btn.dataset.loading = "false";
-        }
-        // Clean up iframe
-        setTimeout(() => { try { document.body.removeChild(iframe); } catch(e) {} }, 5000);
+          btn.dataset.loading = 'false';
+        }, 3500);
+        return;
       }
-    }, 500);
+
+      throw new Error(data.error || 'Server could not prepare download link.');
+    } catch (err) {
+      console.warn('JSON link failed, initiating direct download:', err.message);
+      // Fallback: direct browser navigation to endpoint
+      window.location.assign(downloadHref);
+      setTimeout(() => {
+        btn.innerHTML = originalHtml;
+        btn.classList.remove('opacity-80', 'cursor-not-allowed');
+        btn.dataset.loading = 'false';
+      }, 3000);
+    }
   });
 
   // ── Helpers ──
